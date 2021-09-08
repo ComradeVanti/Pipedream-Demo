@@ -3,24 +3,24 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <Authors>KingVanti</Authors>
         <Description>The browser presentation-layer for the Pipedream demo.</Description>
-        <Company />
+        <Company/>
         <AssemblyVersion>1.0.0</AssemblyVersion>
         <FileVersion>1.0.0</FileVersion>
         <NeutralLanguage>en</NeutralLanguage>
     </PropertyGroup>
     <ItemGroup>
-        <Compile Include="ElmishUtil.fs" />
-        <Compile Include="Editor.fs" />
-        <Compile Include="Shell.fs" />
-        <Compile Include="App.fs" />
+        <Compile Include="ElmishUtil.fs"/>
+        <Compile Include="Editor.fs"/>
+        <Compile Include="Shell.fs"/>
+        <Compile Include="App.fs"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Fable.Browser.Dom" Version="2.2.0" />
-        <PackageReference Include="Fable.Core" Version="3.2.3" />
-        <PackageReference Include="Fable.Elmish.React" Version="3.0.1" />
-        <PackageReference Include="Feliz" Version="1.51.0" />
+        <PackageReference Include="Fable.Browser.Dom" Version="2.2.0"/>
+        <PackageReference Include="Fable.Core" Version="3.2.3"/>
+        <PackageReference Include="Fable.Elmish.React" Version="3.0.1"/>
+        <PackageReference Include="Feliz" Version="1.51.0"/>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\PipedreamDemo.Core\PipedreamDemo.Core.fsproj" />
+        <ProjectReference Include="..\..\PipedreamDemo.Core\PipedreamDemo.Core.fsproj"/>
     </ItemGroup>
 </Project>
