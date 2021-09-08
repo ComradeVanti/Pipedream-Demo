@@ -1,4 +1,21 @@
-﻿body {
+﻿@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+:root {
+
+    /* Colors */
+
+    --primary: #8564d7;
+
+    /* Dimensions */
+
+    --space-medium: 20px;
+}
+
+* {
+    font-family: Roboto, sans-serif;
+}
+
+body {
     width: 100vw;
     height: 100vh;
     margin: 0;
@@ -25,5 +42,17 @@
 }
 
 #inputs {
-    
+
+}
+
+.input {
+    width: 150px;
+    height: 75px;
+    margin-bottom: var(--space-medium);
+    border: 5px solid var(--primary);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
 }
