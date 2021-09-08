@@ -15,4 +15,8 @@ let init _ : State * Cmd<Msg> =
 
 let update msg state : State * Cmd<Msg> = state, Cmd.none
 
-let view state dispatch = Html.div [ prop.id "editor" ]
+let private viewInputs inputs dispatch = Html.div [ prop.id "inputs" ]
+
+let view state dispatch =
+    Html.div [ prop.id "editor"
+               prop.children [ viewInputs state.Inputs dispatch ] ]
