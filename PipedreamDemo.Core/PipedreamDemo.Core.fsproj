@@ -15,6 +15,7 @@
 
     <ItemGroup>
         <Compile Include="DomainTypes.fs"/>
+        <Compile Include="ListUtil.fs"/>
     </ItemGroup>
 
 </Project>
