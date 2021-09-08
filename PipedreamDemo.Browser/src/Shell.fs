@@ -22,6 +22,6 @@ let update msg state =
     | Msg.Editor editorMsg ->
         state.Editor |> Editor.update editorMsg |> applyEditor state
 
-let view dispatch state =
+let view state dispatch =
     Html.div [ prop.id "shell"
-               prop.children [ Editor.view (Msg.Editor >> dispatch) state.Editor ] ]
+               prop.children [ Editor.view state.Editor (Msg.Editor >> dispatch) ] ]

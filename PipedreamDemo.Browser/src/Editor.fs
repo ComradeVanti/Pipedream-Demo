@@ -14,4 +14,4 @@ let init _ : State * Cmd<Msg> = (), Cmd.none
 
 let update msg state : State * Cmd<Msg> = state, Cmd.none
 
-let view dispatch state = Html.div [ prop.id "editor" ]
+let view state dispatch = Html.div [ prop.id "editor" ]
