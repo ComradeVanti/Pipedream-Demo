@@ -20,7 +20,11 @@ let private viewInput (InputValue value) dispatch =
 
 let private viewInputs inputs dispatch =
     Html.div [ prop.id "inputs"
-               prop.children (inputs |> viewAllBy viewInput dispatch) ]
+               prop.children (
+                   List.append
+                       [ Html.h2 [ prop.text "Inputs" ] ]
+                       (inputs |> viewAllBy viewInput dispatch)
+               ) ]
 
 let view state dispatch =
     Html.div [ prop.id "editor"
