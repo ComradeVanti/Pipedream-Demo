@@ -9,6 +9,7 @@
         <NeutralLanguage>en</NeutralLanguage>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="Editor.fs" />
         <Compile Include="Shell.fs" />
         <Compile Include="App.fs" />
     </ItemGroup>
