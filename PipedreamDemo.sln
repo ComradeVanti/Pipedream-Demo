@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PipedreamDemo.Core", "PipedreamDemo.Core\PipedreamDemo.Core.fsproj", "{A134195B-C026-481F-B7F4-901D45600845}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PipedreamDemo.Browser", "PipedreamDemo.Browser\src\PipedreamDemo.Browser.fsproj", "{4D559BE1-1DAD-4BFC-BB61-25487DC0FC9E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{A134195B-C026-481F-B7F4-901D45600845}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A134195B-C026-481F-B7F4-901D45600845}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A134195B-C026-481F-B7F4-901D45600845}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D559BE1-1DAD-4BFC-BB61-25487DC0FC9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D559BE1-1DAD-4BFC-BB61-25487DC0FC9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D559BE1-1DAD-4BFC-BB61-25487DC0FC9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D559BE1-1DAD-4BFC-BB61-25487DC0FC9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
