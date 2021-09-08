@@ -4,14 +4,24 @@ module PipedreamDemo.Browser.Shell
 open Elmish
 open Feliz
 
-[<RequireQualifiedAccess>]
-type State = unit
+type State = { Editor: Editor.State }
 
 [<RequireQualifiedAccess>]
-type Msg = unit
+type Msg = Editor of Editor.Msg
 
-let init _ : State * Cmd<Msg> = (), Cmd.none
+let private wrapEditor (state, cmd) =
+    { Editor = state }, cmd |> Cmd.map Msg.Editor
 
-let update msg state : State * Cmd<Msg> = state, Cmd.none
+let private applyEditor state (editorState, editorCmd) =
+    { state with Editor = editorState }, editorCmd |> Cmd.map Msg.Editor
 
-let view dispatch state = Html.div [ prop.id "shell" ]
+let init arg = Editor.init arg |> wrapEditor
+
+let update msg state =
+    match msg with
+    | Msg.Editor editorMsg ->
+        state.Editor |> Editor.update editorMsg |> applyEditor state
+
+let view dispatch state =
+    Html.div [ prop.id "shell"
+               prop.children [ Editor.view (Msg.Editor >> dispatch) state.Editor ] ]
