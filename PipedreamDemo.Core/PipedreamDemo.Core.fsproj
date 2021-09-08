@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <WarnOn>3390;$(WarnOn)</WarnOn>
+        <RootNamespace>PipedreamDemo</RootNamespace>
+        <Authors>KingVanti</Authors>
+        <Description>The core library of the Pipedream demo. Platform and presentation indipendent.</Description>
+        <Company />
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+        <FileVersion>1.0.0</FileVersion>
+        <NeutralLanguage>en</NeutralLanguage>
+    </PropertyGroup>
+
+</Project>
