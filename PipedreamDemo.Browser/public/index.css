@@ -34,10 +34,6 @@ body {
 }
 
 #editor {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: start;
     flex-grow: 1;
 }
 
@@ -45,14 +41,19 @@ body {
 
 }
 
-.input {
+.node {
     width: 150px;
     height: 75px;
-    margin-bottom: var(--space-medium);
     border: 5px solid var(--primary);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2em;
+    position: relative;
+}
+
+.input {
+
+
 }

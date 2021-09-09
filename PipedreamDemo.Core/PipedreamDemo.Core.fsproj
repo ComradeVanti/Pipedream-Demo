@@ -7,15 +7,18 @@
         <RootNamespace>PipedreamDemo</RootNamespace>
         <Authors>KingVanti</Authors>
         <Description>The core library of the Pipedream demo. Platform and presentation indipendent.</Description>
-        <Company/>
+        <Company />
         <AssemblyVersion>1.0.0</AssemblyVersion>
         <FileVersion>1.0.0</FileVersion>
         <NeutralLanguage>en</NeutralLanguage>
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="DomainTypes.fs"/>
-        <Compile Include="ListUtil.fs"/>
+        <Compile Include="DomainTypes.fs" />
+        <Compile Include="ListUtil.fs" />
+        <Compile Include="GraphManagement.fs" />
+        <Compile Include="InputManagement.fs" />
+        <Compile Include="LayoutManagement.fs" />
     </ItemGroup>
 
 </Project>
