@@ -69,14 +69,17 @@ let viewOutput value =
     Html.div [ prop.classes [ "node-content"; "output" ]
                prop.text (string value) ]
 
+let viewNodeContent node index value dispatch =
+    match node with
+    | Input -> viewInput index value dispatch
+    | Output -> viewOutput value
+
 let viewNode node index (XY (x, y)) value dispatch =
     Html.div [ prop.className "node"
                prop.style [ style.transform (transform.translate (x, y)) ]
                prop.onMouseDown (fun _ -> dispatch (Msg.NodeClicked index))
                prop.children [ Html.text (string node)
-                               match node with
-                               | Input -> viewInput index value dispatch
-                               | Output -> viewOutput value ] ]
+                               viewNodeContent node index value dispatch ] ]
 
 let viewNodeAtIndex state value index dispatch =
     viewNode
