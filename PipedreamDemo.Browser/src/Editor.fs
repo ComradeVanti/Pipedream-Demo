@@ -25,7 +25,7 @@ type Msg =
 
 let initialState =
     {
-        Graph = fromNodes [ Input; Input; Output ]
+        Graph = fromNodes [ Input; Input; Output ] |> connect (0, 0) (2, 0)
         Layout = Positions [ XY(100., 100.); XY(100., 200.); XY(300., 150.) ]
         Inputs = [ 0.; 0. ]
         ClickedNodeIndex = None
