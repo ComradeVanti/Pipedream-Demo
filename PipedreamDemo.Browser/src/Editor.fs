@@ -6,6 +6,7 @@ open Feliz
 open PipedreamDemo
 open PipedreamDemo.GraphManagement
 open PipedreamDemo.LayoutManagement
+open PipedreamDemo.GraphExecution
 
 type NodeIndex = int
 
@@ -28,8 +29,8 @@ type Msg =
 
 let initialState =
     {
-        Graph = fromNodes [ Input; Input ]
-        Layout = Positions [ XY(100., 100.); XY(100., 200.) ]
+        Graph = fromNodes [ Input; Input; Output ]
+        Layout = Positions [ XY(100., 100.); XY(100., 200.); XY(300., 150.) ]
         Inputs = [ 0.; 0. ]
         ClickedNodeIndex = None
     }
@@ -68,24 +69,32 @@ let viewInput index (value: NodeValue) dispatch =
                  prop.type' "number"
                  prop.onChange (fun v -> dispatch (Msg.InputChanged(index, v))) ]
 
+let viewOutput value =
+    Html.div [ prop.className "output"
+               prop.text (string value) ]
+
 let viewNode node index (XY (x, y)) value dispatch =
     Html.div [ prop.className "node"
                prop.style [ style.transform (transform.translate (x, y)) ]
                prop.onMouseDown (fun _ -> dispatch (Msg.NodeClicked index))
                prop.children [ match node with
-                               | Input -> viewInput index value dispatch ] ]
+                               | Input -> viewInput index value dispatch
+                               | Output -> viewOutput value ] ]
 
-let viewNodeAtIndex state dispatch index =
+let viewNodeAtIndex state value index dispatch =
     viewNode
         (state.Graph |> nodeAt index)
         index
         (state.Layout |> positionAt index)
-        state.Inputs.[index]
+        value
         dispatch
 
 let viewNodes state dispatch =
+    let values = state.Graph |> run state.Inputs
+
     List.init (state.Graph |> nodeCount) id
-    |> List.map (viewNodeAtIndex state dispatch)
+    |> List.map
+        (fun index -> viewNodeAtIndex state values.[index] index dispatch)
 
 let view state dispatch =
     Html.div [ prop.id "editor"

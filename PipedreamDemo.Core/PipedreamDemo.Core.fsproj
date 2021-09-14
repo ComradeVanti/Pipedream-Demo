@@ -19,6 +19,7 @@
         <Compile Include="GraphManagement.fs" />
         <Compile Include="InputManagement.fs" />
         <Compile Include="LayoutManagement.fs" />
+        <Compile Include="GraphExecution.fs" />
     </ItemGroup>
 
 </Project>
