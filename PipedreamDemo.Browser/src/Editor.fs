@@ -74,9 +74,13 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
         Html.div [ prop.classes [ "node-content"; "output" ]
                    prop.text (string value) ]
 
-    let viewInputSlot () = Html.div [ prop.className "node-slot" ]
+    let viewInputSlot slotIndex =
+        Html.div [ prop.className "node-slot"
+                   prop.id $"{index}-input-{slotIndex}" ]
 
-    let viewOutputSlot () = Html.div [ prop.className "node-slot" ]
+    let viewOutputSlot slotIndex =
+        Html.div [ prop.className "node-slot"
+                   prop.id $"{index}-output-{slotIndex}" ]
 
     let onBodyMouseDown (e: MouseEvent) =
         dispatch (Msg.NodeClicked index)
@@ -87,7 +91,7 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
                    prop.children (
                        match node with
                        | Input -> []
-                       | Output -> [ viewInputSlot () ]
+                       | Output -> [ viewInputSlot 0 ]
                    ) ]
 
     let nodeContent =
@@ -99,7 +103,7 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
         Html.div [ prop.className "slots-container"
                    prop.children (
                        match node with
-                       | Input -> [ viewOutputSlot () ]
+                       | Input -> [ viewOutputSlot 0 ]
                        | Output -> []
                    ) ]
 
@@ -111,6 +115,13 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
     Html.div [ prop.className "node"
                prop.style [ style.transform (transform.translate (x, y)) ]
                prop.children [ inputSlots; nodeBody; outputSlots ] ]
+
+let generateLinkId (Endpoints (input, output)) =
+    $"{fst input}-{snd input} to {fst output}-{snd output}"
+
+let viewLink link =
+    Svg.line [ svg.id (link |> generateLinkId)
+               svg.className "link" ]
 
 let view state dispatch =
 
@@ -127,12 +138,14 @@ let view state dispatch =
         List.init (state.Graph |> nodeCount) id
         |> List.map (fun index -> viewNodeAtIndex values.[index] index)
 
+    let links = Svg.svg (graph.Links |> List.map viewLink)
+
     let onMouseMoved (e: MouseEvent) =
         if state.ClickedNodeIndex |> Option.isSome then
             dispatch (Msg.MouseDragged(XY(e.clientX, e.clientY)))
             e.preventDefault ()
 
     Html.div [ prop.id "editor"
-               prop.children nodes
+               prop.children (nodes |> appendItem links)
                prop.onMouseUp (fun _ -> dispatch Msg.MouseUp)
                prop.onMouseMove onMouseMoved ]
