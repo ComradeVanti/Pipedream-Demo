@@ -59,76 +59,75 @@ let update msg state =
     | Msg.MouseUp -> state |> unclick, Cmd.none
     | Msg.MouseDragged newPos -> state |> moveClickedNodeTo newPos, Cmd.none
 
-let viewInput index (value: NodeValue) dispatch =
-    Html.input [ prop.classes [ "node-content"; "input" ]
-                 prop.value value
-                 prop.type' "number"
-                 prop.onChange (fun v -> dispatch (Msg.InputChanged(index, v)))
-                 prop.onMouseDown (fun e -> e.stopPropagation ()) ]
+let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
 
-let viewOutput value =
-    Html.div [ prop.classes [ "node-content"; "output" ]
-               prop.text (string value) ]
+    let viewInputContent () =
+        Html.input [ prop.classes [ "node-content"; "input" ]
+                     prop.value value
+                     prop.type' "number"
+                     prop.onChange
+                         (fun v -> dispatch (Msg.InputChanged(index, v)))
+                     prop.onMouseDown (fun e -> e.stopPropagation ()) ]
 
-let viewNodeContent node index value dispatch =
-    match node with
-    | Input -> viewInput index value dispatch
-    | Output -> viewOutput value
+    let viewOutputContent () =
+        Html.div [ prop.classes [ "node-content"; "output" ]
+                   prop.text (string value) ]
 
-let viewInputSlot () = Html.div [ prop.className "node-slot" ]
+    let viewInputSlot () = Html.div [ prop.className "node-slot" ]
 
-let viewOutputSlot () = Html.div [ prop.className "node-slot" ]
+    let viewOutputSlot () = Html.div [ prop.className "node-slot" ]
 
-let viewInputSlots node =
-    Html.div [ prop.className "slots-container"
-               prop.children (
-                   match node with
-                   | Input -> []
-                   | Output -> [ viewInputSlot () ]
-               ) ]
+    let inputSlots =
+        Html.div [ prop.className "slots-container"
+                   prop.children (
+                       match node with
+                       | Input -> []
+                       | Output -> [ viewInputSlot () ]
+                   ) ]
 
-let viewOutputSlots node =
-    Html.div [ prop.className "slots-container"
-               prop.children (
-                   match node with
-                   | Input -> [ viewOutputSlot () ]
-                   | Output -> []
-               ) ]
+    let nodeContent =
+        match node with
+        | Input -> viewInputContent ()
+        | Output -> viewOutputContent ()
 
-let viewNodeBody node index value dispatch =
-    Html.div [ prop.className "node-body"
-               prop.onMouseDown
-                   (fun e ->
-                       dispatch (Msg.NodeClicked index)
-                       e.stopPropagation ())
-               prop.children [ Html.text (string node)
-                               viewNodeContent node index value dispatch ] ]
+    let outputSlots =
+        Html.div [ prop.className "slots-container"
+                   prop.children (
+                       match node with
+                       | Input -> [ viewOutputSlot () ]
+                       | Output -> []
+                   ) ]
 
-let viewNode node index (XY (x, y)) value dispatch =
+    let nodeBody =
+        Html.div [ prop.className "node-body"
+                   prop.onMouseDown
+                       (fun e ->
+                           dispatch (Msg.NodeClicked index)
+                           e.stopPropagation ())
+                   prop.children [ Html.text (string node); nodeContent ] ]
+
     Html.div [ prop.className "node"
                prop.style [ style.transform (transform.translate (x, y)) ]
-               prop.children [ viewInputSlots node
-                               viewNodeBody node index value dispatch
-                               viewOutputSlots node ] ]
-
-let viewNodeAtIndex state value index dispatch =
-    viewNode
-        (state.Graph |> nodeAt index)
-        index
-        (state.Layout |> positionAt index)
-        value
-        dispatch
-
-let viewNodes state dispatch =
-    let values = state.Graph |> run state.Inputs
-
-    List.init (state.Graph |> nodeCount) id
-    |> List.map
-        (fun index -> viewNodeAtIndex state values.[index] index dispatch)
+               prop.children [ inputSlots; nodeBody; outputSlots ] ]
 
 let view state dispatch =
+
+    let viewNodeAtIndex value index =
+        viewNode
+            (state.Graph |> nodeAt index)
+            index
+            (state.Layout |> positionAt index)
+            value
+            dispatch
+
+    let nodes =
+        let values = state.Graph |> run state.Inputs
+
+        List.init (state.Graph |> nodeCount) id
+        |> List.map (fun index -> viewNodeAtIndex values.[index] index)
+
     Html.div [ prop.id "editor"
-               prop.children (viewNodes state dispatch)
+               prop.children nodes
                prop.onMouseUp (fun _ -> dispatch Msg.MouseUp)
                prop.onMouseMove
                    (fun e ->
