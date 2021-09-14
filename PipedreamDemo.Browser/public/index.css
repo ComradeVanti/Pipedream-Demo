@@ -35,10 +35,7 @@ body {
 
 #editor {
     flex-grow: 1;
-}
-
-#inputs {
-
+    position: relative;
 }
 
 .node {
@@ -49,11 +46,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2em;
-    position: relative;
+    position: absolute;
+    padding: 5px 10px;
 }
 
 .input {
-
-
+    width: 100%;
+    text-align: center;
+    font-size: 1.5em;
 }

@@ -9,6 +9,8 @@ type Node = | Input
 
 type NodeGraph = Nodes of Node list
 
-type NodePosition = XY of float * float
+type Vector = XY of float * float
+
+type NodePosition = Vector
 
 type GraphLayout = Positions of NodePosition list
