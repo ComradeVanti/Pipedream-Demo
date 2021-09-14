@@ -129,4 +129,5 @@ let view state dispatch =
                prop.onMouseMove
                    (fun e ->
                        if state.ClickedNodeIndex |> Option.isSome then
-                           dispatch (Msg.MouseDragged(XY(e.clientX, e.clientY)))) ]
+                           dispatch (Msg.MouseDragged(XY(e.clientX, e.clientY)))
+                           e.preventDefault ()) ]
