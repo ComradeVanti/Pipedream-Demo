@@ -60,20 +60,21 @@ let update msg state =
     | Msg.MouseDragged newPos -> state |> moveClickedNodeTo newPos, Cmd.none
 
 let viewInput index (value: NodeValue) dispatch =
-    Html.input [ prop.className "input"
+    Html.input [ prop.classes [ "node-content"; "input" ]
                  prop.value value
                  prop.type' "number"
                  prop.onChange (fun v -> dispatch (Msg.InputChanged(index, v))) ]
 
 let viewOutput value =
-    Html.div [ prop.className "output"
+    Html.div [ prop.classes [ "node-content"; "output" ]
                prop.text (string value) ]
 
 let viewNode node index (XY (x, y)) value dispatch =
     Html.div [ prop.className "node"
                prop.style [ style.transform (transform.translate (x, y)) ]
                prop.onMouseDown (fun _ -> dispatch (Msg.NodeClicked index))
-               prop.children [ match node with
+               prop.children [ Html.text (string node)
+                               match node with
                                | Input -> viewInput index value dispatch
                                | Output -> viewOutput value ] ]
 
