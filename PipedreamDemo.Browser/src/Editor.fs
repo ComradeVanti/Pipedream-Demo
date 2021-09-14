@@ -63,7 +63,8 @@ let viewInput index (value: NodeValue) dispatch =
     Html.input [ prop.classes [ "node-content"; "input" ]
                  prop.value value
                  prop.type' "number"
-                 prop.onChange (fun v -> dispatch (Msg.InputChanged(index, v))) ]
+                 prop.onChange (fun v -> dispatch (Msg.InputChanged(index, v)))
+                 prop.onMouseDown (fun e -> e.stopPropagation ()) ]
 
 let viewOutput value =
     Html.div [ prop.classes [ "node-content"; "output" ]
@@ -96,7 +97,10 @@ let viewOutputSlots node =
 
 let viewNodeBody node index value dispatch =
     Html.div [ prop.className "node-body"
-               prop.onMouseDown (fun _ -> dispatch (Msg.NodeClicked index))
+               prop.onMouseDown
+                   (fun e ->
+                       dispatch (Msg.NodeClicked index)
+                       e.stopPropagation ())
                prop.children [ Html.text (string node)
                                viewNodeContent node index value dispatch ] ]
 
