@@ -8,10 +8,6 @@ open PipedreamDemo.GraphManagement
 open PipedreamDemo.LayoutManagement
 open PipedreamDemo.GraphExecution
 
-type NodeIndex = int
-
-type InputIndex = NodeIndex
-
 type State =
     {
         Graph: NodeGraph

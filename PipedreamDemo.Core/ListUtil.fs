@@ -7,3 +7,6 @@ let mapAtIndex mapper index list =
 
 let replaceAtIndex newItem index list =
     list |> mapAtIndex (fun _ -> newItem) index
+    
+let appendItem item list =
+    List.append list [item]
