@@ -74,12 +74,38 @@ let viewNodeContent node index value dispatch =
     | Input -> viewInput index value dispatch
     | Output -> viewOutput value
 
-let viewNode node index (XY (x, y)) value dispatch =
-    Html.div [ prop.className "node"
-               prop.style [ style.transform (transform.translate (x, y)) ]
+let viewInputSlot () = Html.div [ prop.className "node-slot" ]
+
+let viewOutputSlot () = Html.div [ prop.className "node-slot" ]
+
+let viewInputSlots node =
+    Html.div [ prop.className "slots-container"
+               prop.children (
+                   match node with
+                   | Input -> []
+                   | Output -> [ viewInputSlot () ]
+               ) ]
+
+let viewOutputSlots node =
+    Html.div [ prop.className "slots-container"
+               prop.children (
+                   match node with
+                   | Input -> [ viewOutputSlot () ]
+                   | Output -> []
+               ) ]
+
+let viewNodeBody node index value dispatch =
+    Html.div [ prop.className "node-body"
                prop.onMouseDown (fun _ -> dispatch (Msg.NodeClicked index))
                prop.children [ Html.text (string node)
                                viewNodeContent node index value dispatch ] ]
+
+let viewNode node index (XY (x, y)) value dispatch =
+    Html.div [ prop.className "node"
+               prop.style [ style.transform (transform.translate (x, y)) ]
+               prop.children [ viewInputSlots node
+                               viewNodeBody node index value dispatch
+                               viewOutputSlots node ] ]
 
 let viewNodeAtIndex state value index dispatch =
     viewNode
