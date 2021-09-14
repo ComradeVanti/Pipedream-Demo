@@ -1,6 +1,7 @@
 ﻿[<RequireQualifiedAccess>]
 module PipedreamDemo.Browser.Editor
 
+open Browser.Types
 open Elmish
 open Feliz
 open PipedreamDemo
@@ -77,6 +78,10 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
 
     let viewOutputSlot () = Html.div [ prop.className "node-slot" ]
 
+    let onBodyMouseDown (e: MouseEvent) =
+        dispatch (Msg.NodeClicked index)
+        e.stopPropagation ()
+
     let inputSlots =
         Html.div [ prop.className "slots-container"
                    prop.children (
@@ -100,10 +105,7 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
 
     let nodeBody =
         Html.div [ prop.className "node-body"
-                   prop.onMouseDown
-                       (fun e ->
-                           dispatch (Msg.NodeClicked index)
-                           e.stopPropagation ())
+                   prop.onMouseDown onBodyMouseDown
                    prop.children [ Html.text (string node); nodeContent ] ]
 
     Html.div [ prop.className "node"
@@ -125,11 +127,12 @@ let view state dispatch =
         List.init (state.Graph |> nodeCount) id
         |> List.map (fun index -> viewNodeAtIndex values.[index] index)
 
+    let onMouseMoved (e: MouseEvent) =
+        if state.ClickedNodeIndex |> Option.isSome then
+            dispatch (Msg.MouseDragged(XY(e.clientX, e.clientY)))
+            e.preventDefault ()
+
     Html.div [ prop.id "editor"
                prop.children nodes
                prop.onMouseUp (fun _ -> dispatch Msg.MouseUp)
-               prop.onMouseMove
-                   (fun e ->
-                       if state.ClickedNodeIndex |> Option.isSome then
-                           dispatch (Msg.MouseDragged(XY(e.clientX, e.clientY)))
-                           e.preventDefault ()) ]
+               prop.onMouseMove onMouseMoved ]
