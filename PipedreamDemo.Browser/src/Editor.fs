@@ -112,17 +112,16 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
 
 let view state dispatch =
 
+    let graph = state.Graph
+    let layout = state.Layout
+    let values = graph |> run state.Inputs
+
     let viewNodeAtIndex value index =
-        viewNode
-            (state.Graph |> nodeAt index)
-            index
-            (state.Layout |> positionAt index)
-            value
-            dispatch
+        let node = graph |> nodeAt index
+        let position = layout |> positionAt index
+        viewNode node index position value dispatch
 
     let nodes =
-        let values = state.Graph |> run state.Inputs
-
         List.init (state.Graph |> nodeCount) id
         |> List.map (fun index -> viewNodeAtIndex values.[index] index)
 
