@@ -10,6 +10,14 @@ open PipedreamDemo.GraphExecution
 
 let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
 
+    let onBodyMouseDown (e: MouseEvent) =
+        dispatch (Editor.Msg.NodeClicked index)
+        e.stopPropagation ()
+
+    let onOutputMouseDown address (e: MouseEvent) =
+        dispatch (Editor.Msg.OutputClicked address)
+        e.stopPropagation ()
+
     let viewInputContent () =
         Html.input [ prop.classes [ "node-content"; "input" ]
                      prop.value value
@@ -28,11 +36,8 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
 
     let viewOutputSlot slotIndex =
         Html.div [ prop.className "node-slot"
-                   prop.id $"{index}-output-{slotIndex}" ]
-
-    let onBodyMouseDown (e: MouseEvent) =
-        dispatch (Editor.Msg.NodeClicked index)
-        e.stopPropagation ()
+                   prop.id $"{index}-output-{slotIndex}"
+                   prop.onMouseDown (onOutputMouseDown (index, slotIndex)) ]
 
     let inputSlots =
         Html.div [ prop.className "slots-container"
@@ -64,12 +69,18 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
                prop.style [ style.transform (transform.translate (x, y)) ]
                prop.children [ inputSlots; nodeBody; outputSlots ] ]
 
-let generateLinkId (Endpoints (input, output)) =
-    $"{fst input}-{snd input} to {fst output}-{snd output}"
+let asIdentifier address = $"{fst address}-{snd address}"
 
-let viewLink link =
-    Svg.line [ svg.id (link |> generateLinkId)
-               svg.className "link" ]
+let generateLinkId (Endpoints (input, output)) =
+    $"{input |> asIdentifier} to {output |> asIdentifier}"
+
+let viewLinkWithId id = Svg.line [ svg.id id; svg.className "link" ]
+
+let viewLink link = link |> generateLinkId |> viewLinkWithId
+
+let viewLinkToMouse outputAddress =
+    $"{outputAddress |> asIdentifier} to mouse"
+    |> viewLinkWithId
 
 let view (state: Editor.State) dispatch =
 
@@ -86,10 +97,21 @@ let view (state: Editor.State) dispatch =
         List.init (state.Graph |> nodeCount) id
         |> List.map (fun index -> viewNodeAtIndex values.[index] index)
 
-    let links = Svg.svg (graph.Links |> List.map viewLink)
+    let mouseLink = state.ClickedOutputSlot |> Option.map viewLinkToMouse
+
+    let links =
+        Svg.svg (
+            graph.Links
+            |> List.map viewLink
+            |> appendIfPresent mouseLink
+        )
+
+    let shouldRegisterDrags =
+        state.ClickedNodeIndex |> Option.isSome
+        || state.ClickedOutputSlot |> Option.isSome
 
     let onMouseMoved (e: MouseEvent) =
-        if state.ClickedNodeIndex |> Option.isSome then
+        if shouldRegisterDrags then
             dispatch (Editor.Msg.MouseDragged(XY(e.clientX, e.clientY)))
             e.preventDefault ()
 

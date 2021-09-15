@@ -1,8 +1,14 @@
-﻿function getCenterPosition(element) {
-    let rect = element.getBoundingClientRect();
-    let x = rect.left + (rect.width / 2)
-    let y = rect.top + (rect.height / 2)
+﻿let createPos = (x, y) => {
     return {x: x, y: y}
+}
+
+let currentMousePos = createPos(0, 0)
+
+function getCenterPosition(element) {
+    let rect = element.getBoundingClientRect();
+    return createPos(
+        rect.left + (rect.width / 2),
+        rect.top + (rect.height / 2))
 }
 
 let connectPositionsWithLine = (p1, p2, line) => {
@@ -12,25 +18,46 @@ let connectPositionsWithLine = (p1, p2, line) => {
     line.y2.baseVal.value = p2.y
 }
 
-let connectElementsWithLine = (e1, e2, line) => {
+let createOutputId = (address) =>
+    `${address[0]}-output-${address[1]}`
+
+let createInputId = (address) =>
+    `${address[0]}-input-${address[1]}`
+
+let getOutputElement = (address) =>
+    document.getElementById(createOutputId(address))
+
+let getInputElement = (address) =>
+    document.getElementById(createInputId(address))
+
+let getOutputPosition = (address) =>
+    getCenterPosition(getOutputElement(address))
+
+let getInputPosition = (address) =>
+    getCenterPosition(getInputElement(address))
+
+let connectAddressesWithLine = (a1, a2, line) =>
     connectPositionsWithLine(
-        getCenterPosition(e1),
-        getCenterPosition(e2),
+        getOutputPosition(a1),
+        getInputPosition(a2),
         line)
+
+let connectAddressAndMouseWithLine = (address, line) => {
+    let addressPosition = getOutputPosition(address)
+    connectPositionsWithLine(addressPosition, currentMousePos, line)
 }
 
 let moveLine = line => {
     let slotIdentifiers = line.id.split(" to ")
-    let inputSlotIdentifier = slotIdentifiers[0].split("-")
-    let outputSlotIdentifier = slotIdentifiers[1].split("-")
 
-    let inputSlotId = `${inputSlotIdentifier[0]}-output-${inputSlotIdentifier[1]}`
-    let outputSlotId = `${outputSlotIdentifier[0]}-input-${outputSlotIdentifier[1]}`
+    let outputAddress = slotIdentifiers[0].split("-")
 
-    connectElementsWithLine(
-        document.getElementById(inputSlotId),
-        document.getElementById(outputSlotId),
-        line)
+    if (slotIdentifiers[1] === "mouse") {
+        connectAddressAndMouseWithLine(outputAddress, line)
+    } else {
+        let inputAddress = slotIdentifiers[1].split("-")
+        connectAddressesWithLine(outputAddress, inputAddress, line)
+    }
 }
 
 let refreshLines = () => {
@@ -40,5 +67,6 @@ let refreshLines = () => {
 
 window.onload = refreshLines
 window.onmousemove = e => {
+    currentMousePos = createPos(e.clientX, e.clientY)
     if (e.buttons === 1) refreshLines()
 }

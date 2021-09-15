@@ -12,12 +12,14 @@ type State =
         Layout: GraphLayout
         Inputs: InputValue list
         ClickedNodeIndex: NodeIndex option
+        ClickedOutputSlot: SlotAddress option
     }
 
 [<RequireQualifiedAccess>]
 type Msg =
     | InputChanged of InputIndex * float
     | NodeClicked of NodeIndex
+    | OutputClicked of SlotAddress
     | MouseUp
     | MouseDragged of Vector
 
@@ -27,6 +29,7 @@ let initialState =
         Layout = Positions [ XY(100., 100.); XY(100., 200.); XY(300., 150.) ]
         Inputs = [ 0.; 0. ]
         ClickedNodeIndex = None
+        ClickedOutputSlot = None
     }
 
 let setInputs inputs state = { state with Inputs = inputs }
@@ -35,7 +38,13 @@ let mapInputs mapper state = state |> setInputs (state.Inputs |> mapper)
 
 let clickNode nodeIndex state = { state with ClickedNodeIndex = Some nodeIndex }
 
-let unclick state = { state with ClickedNodeIndex = None }
+let clickOutput address state = { state with ClickedOutputSlot = Some address }
+
+let unclick state =
+    { state with
+        ClickedNodeIndex = None
+        ClickedOutputSlot = None
+    }
 
 let moveNodeWithIndexTo index newPos state =
     { state with
@@ -54,5 +63,6 @@ let update msg state =
     | Msg.InputChanged (index, value) ->
         (state |> mapInputs (replaceAtIndex value index)), Cmd.none
     | Msg.NodeClicked index -> state |> clickNode index, Cmd.none
+    | Msg.OutputClicked address -> state |> clickOutput address, Cmd.none
     | Msg.MouseUp -> state |> unclick, Cmd.none
     | Msg.MouseDragged newPos -> state |> moveClickedNodeTo newPos, Cmd.none
