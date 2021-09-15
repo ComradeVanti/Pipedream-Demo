@@ -68,5 +68,5 @@ let refreshLines = () => {
 window.onload = refreshLines
 window.onmousemove = e => {
     currentMousePos = createPos(e.clientX, e.clientY)
-    if (e.buttons === 1) refreshLines()
+    refreshLines()
 }
