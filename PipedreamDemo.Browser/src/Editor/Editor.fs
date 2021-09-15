@@ -20,6 +20,7 @@ type Msg =
     | InputChanged of InputIndex * float
     | NodeClicked of NodeIndex
     | OutputClicked of SlotAddress
+    | MouseUpOnInput of SlotAddress
     | MouseUp
     | MouseDragged of Vector
 
@@ -36,6 +37,8 @@ let setInputs inputs state = { state with Inputs = inputs }
 
 let mapInputs mapper state = state |> setInputs (state.Inputs |> mapper)
 
+let mapGraph mapper state = { state with Graph = state.Graph |> mapper }
+
 let clickNode nodeIndex state = { state with ClickedNodeIndex = Some nodeIndex }
 
 let clickOutput address state = { state with ClickedOutputSlot = Some address }
@@ -45,6 +48,11 @@ let unclick state =
         ClickedNodeIndex = None
         ClickedOutputSlot = None
     }
+
+let tryAddLinkFromSelectedOutputTo input state =
+    match state.ClickedOutputSlot with
+    | Some output -> state |> mapGraph (connect output input)
+    | None -> state
 
 let moveNodeWithIndexTo index newPos state =
     { state with
@@ -61,8 +69,10 @@ let init _ = initialState, Cmd.none
 let update msg state =
     match msg with
     | Msg.InputChanged (index, value) ->
-        (state |> mapInputs (replaceAtIndex value index)), Cmd.none
+        state |> mapInputs (replaceAtIndex value index), Cmd.none
     | Msg.NodeClicked index -> state |> clickNode index, Cmd.none
     | Msg.OutputClicked address -> state |> clickOutput address, Cmd.none
     | Msg.MouseUp -> state |> unclick, Cmd.none
+    | Msg.MouseUpOnInput address ->
+        state |> tryAddLinkFromSelectedOutputTo address, Cmd.none
     | Msg.MouseDragged newPos -> state |> moveClickedNodeTo newPos, Cmd.none
