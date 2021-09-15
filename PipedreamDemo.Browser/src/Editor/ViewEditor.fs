@@ -1,64 +1,12 @@
 ﻿[<RequireQualifiedAccess>]
-module PipedreamDemo.Browser.Editor
+module PipedreamDemo.Browser.ViewEditor
 
 open Browser.Types
-open Elmish
 open Feliz
 open PipedreamDemo
 open PipedreamDemo.GraphManagement
 open PipedreamDemo.LayoutManagement
 open PipedreamDemo.GraphExecution
-
-type State =
-    {
-        Graph: NodeGraph
-        Layout: GraphLayout
-        Inputs: InputValue list
-        ClickedNodeIndex: NodeIndex option
-    }
-
-[<RequireQualifiedAccess>]
-type Msg =
-    | InputChanged of InputIndex * float
-    | NodeClicked of NodeIndex
-    | MouseUp
-    | MouseDragged of Vector
-
-let initialState =
-    {
-        Graph = fromNodes [ Input; Input; Output ] |> connect (0, 0) (2, 0)
-        Layout = Positions [ XY(100., 100.); XY(100., 200.); XY(300., 150.) ]
-        Inputs = [ 0.; 0. ]
-        ClickedNodeIndex = None
-    }
-
-let setInputs inputs state = { state with Inputs = inputs }
-
-let mapInputs mapper state = state |> setInputs (state.Inputs |> mapper)
-
-let clickNode nodeIndex state = { state with ClickedNodeIndex = Some nodeIndex }
-
-let unclick state = { state with ClickedNodeIndex = None }
-
-let moveNodeWithIndexTo index newPos state =
-    { state with
-        Layout = state.Layout |> moveNode index newPos
-    }
-
-let moveClickedNodeTo newPos state =
-    match state.ClickedNodeIndex with
-    | Some index -> state |> moveNodeWithIndexTo index newPos
-    | None -> state
-
-let init _ = initialState, Cmd.none
-
-let update msg state =
-    match msg with
-    | Msg.InputChanged (index, value) ->
-        (state |> mapInputs (replaceAtIndex value index)), Cmd.none
-    | Msg.NodeClicked index -> state |> clickNode index, Cmd.none
-    | Msg.MouseUp -> state |> unclick, Cmd.none
-    | Msg.MouseDragged newPos -> state |> moveClickedNodeTo newPos, Cmd.none
 
 let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
 
@@ -67,7 +15,7 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
                      prop.value value
                      prop.type' "number"
                      prop.onChange
-                         (fun v -> dispatch (Msg.InputChanged(index, v)))
+                         (fun v -> dispatch (Editor.Msg.InputChanged(index, v)))
                      prop.onMouseDown (fun e -> e.stopPropagation ()) ]
 
     let viewOutputContent () =
@@ -83,7 +31,7 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
                    prop.id $"{index}-output-{slotIndex}" ]
 
     let onBodyMouseDown (e: MouseEvent) =
-        dispatch (Msg.NodeClicked index)
+        dispatch (Editor.Msg.NodeClicked index)
         e.stopPropagation ()
 
     let inputSlots =
@@ -123,7 +71,7 @@ let viewLink link =
     Svg.line [ svg.id (link |> generateLinkId)
                svg.className "link" ]
 
-let view state dispatch =
+let view (state: Editor.State) dispatch =
 
     let graph = state.Graph
     let layout = state.Layout
@@ -142,10 +90,10 @@ let view state dispatch =
 
     let onMouseMoved (e: MouseEvent) =
         if state.ClickedNodeIndex |> Option.isSome then
-            dispatch (Msg.MouseDragged(XY(e.clientX, e.clientY)))
+            dispatch (Editor.Msg.MouseDragged(XY(e.clientX, e.clientY)))
             e.preventDefault ()
 
     Html.div [ prop.id "editor"
                prop.children (nodes |> appendItem links)
-               prop.onMouseUp (fun _ -> dispatch Msg.MouseUp)
+               prop.onMouseUp (fun _ -> dispatch Editor.Msg.MouseUp)
                prop.onMouseMove onMouseMoved ]

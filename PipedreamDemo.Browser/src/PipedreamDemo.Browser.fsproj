@@ -10,8 +10,10 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="ElmishUtil.fs"/>
-        <Compile Include="Editor.fs"/>
-        <Compile Include="Shell.fs"/>
+        <Compile Include="Editor\Editor.fs"/>
+        <Compile Include="Editor\ViewEditor.fs"/>
+        <Compile Include="Shell\Shell.fs"/>
+        <Compile Include="Shell\ViewShell.fs"/>
         <Compile Include="App.fs"/>
     </ItemGroup>
     <ItemGroup>

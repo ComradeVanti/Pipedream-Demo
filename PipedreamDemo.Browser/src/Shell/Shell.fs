@@ -2,7 +2,6 @@
 module PipedreamDemo.Browser.Shell
 
 open Elmish
-open Feliz
 
 type State = { Editor: Editor.State }
 
@@ -21,7 +20,3 @@ let update msg state =
     match msg with
     | Msg.Editor editorMsg ->
         state.Editor |> Editor.update editorMsg |> applyEditor state
-
-let view state dispatch =
-    Html.div [ prop.id "shell"
-               prop.children [ Editor.view state.Editor (Msg.Editor >> dispatch) ] ]
