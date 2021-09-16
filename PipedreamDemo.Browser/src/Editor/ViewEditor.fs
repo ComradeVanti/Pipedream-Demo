@@ -103,11 +103,11 @@ let view (state: Editor.State) dispatch =
     let mouseLink = state.ClickedOutputSlot |> Option.map viewLinkToMouse
 
     let links =
-        Svg.svg (
-            graph.Links
-            |> List.map viewLink
-            |> appendIfPresent mouseLink
-        )
+        graph.Links
+        |> List.map viewLink
+        |> appendIfPresent mouseLink
+        |> Svg.svg
+
 
     let shouldRegisterDrags =
         state.ClickedNodeIndex |> Option.isSome

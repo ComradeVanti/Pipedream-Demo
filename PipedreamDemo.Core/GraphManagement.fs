@@ -21,3 +21,14 @@ let nodeAt index graph = graph |> nodes |> List.item index
 let addLink link graph = graph |> mapLinks (appendItem link)
 
 let connect slot1 slot2 graph = graph |> addLink (Endpoints(slot1, slot2))
+
+let hasFreeInputAt address graph =
+    not
+    <| (graph.Links
+        |> List.exists (fun (Endpoints (_, output)) -> output = address))
+
+let tryConnect slot1 slot2 graph =
+    if graph |> hasFreeInputAt slot2 then
+        graph |> connect slot1 slot2
+    else
+        graph

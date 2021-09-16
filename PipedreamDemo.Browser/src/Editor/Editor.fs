@@ -26,7 +26,7 @@ type Msg =
 
 let initialState =
     {
-        Graph = fromNodes [ Input; Input; Output ] |> connect (0, 0) (2, 0)
+        Graph = fromNodes [ Input; Input; Output ]
         Layout = Positions [ XY(100., 100.); XY(100., 200.); XY(300., 150.) ]
         Inputs = [ 0.; 0. ]
         ClickedNodeIndex = None
@@ -51,7 +51,7 @@ let unclick state =
 
 let tryAddLinkFromSelectedOutputTo input state =
     match state.ClickedOutputSlot with
-    | Some output -> state |> mapGraph (connect output input)
+    | Some output -> state |> mapGraph (tryConnect output input)
     | None -> state
 
 let moveNodeWithIndexTo index newPos state =
