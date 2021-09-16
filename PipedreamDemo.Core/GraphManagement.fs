@@ -48,7 +48,7 @@ let tryConnect slot1 slot2 graph =
 
 let removeLink link graph = graph |> mapLinks (List.except [ link ])
 
-let removeLinkFrom address graph =
-    match graph |> tryFindLinkWithStart address with
+let removeLinkInto address graph =
+    match graph |> tryFindLinkWithEnd address with
     | Some link -> graph |> removeLink link
     | None -> graph

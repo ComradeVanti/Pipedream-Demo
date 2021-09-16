@@ -20,6 +20,8 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
 
     let onInputMouseUp address _ = dispatch (Editor.Msg.MouseUpOnInput address)
 
+    let onInputClicked address _ = dispatch (Editor.Msg.InputClicked address)
+
     let viewInputContent () =
         Html.input [ prop.classes [ "node-content"; "input" ]
                      prop.value value
@@ -35,7 +37,8 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
     let viewInputSlot slotIndex =
         Html.div [ prop.className "node-slot"
                    prop.id $"{index}-input-{slotIndex}"
-                   prop.onMouseUp (onInputMouseUp (index, slotIndex)) ]
+                   prop.onMouseUp (onInputMouseUp (index, slotIndex))
+                   prop.onClick (onInputClicked (index, slotIndex)) ]
 
     let viewOutputSlot slotIndex =
         Html.div [ prop.className "node-slot"
