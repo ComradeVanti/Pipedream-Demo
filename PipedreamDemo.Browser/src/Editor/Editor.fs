@@ -1,6 +1,7 @@
 ﻿[<RequireQualifiedAccess>]
 module PipedreamDemo.Browser.Editor
 
+open Browser
 open Elmish
 open PipedreamDemo
 open PipedreamDemo.GraphManagement
@@ -24,6 +25,7 @@ type Msg =
     | MouseUpOnInput of SlotAddress
     | MouseUp
     | MouseDragged of Vector
+    | AddPipe of Pipe
 
 let initialState =
     {
@@ -34,11 +36,16 @@ let initialState =
         ClickedOutputSlot = None
     }
 
+let getCenterOfScreen () =
+    XY(Dom.window.innerWidth / 2., Dom.window.innerHeight / 2.)
+
 let setInputs inputs state = { state with Inputs = inputs }
 
 let mapInputs mapper state = state |> setInputs (state.Inputs |> mapper)
 
 let mapGraph mapper state = { state with Graph = state.Graph |> mapper }
+
+let mapLayout mapper state = { state with Layout = state.Layout |> mapper }
 
 let clickNode nodeIndex state = { state with ClickedNodeIndex = Some nodeIndex }
 
@@ -71,6 +78,11 @@ let moveClickedNodeTo newPos state =
     | Some index -> state |> moveNodeWithIndexTo index newPos
     | None -> state
 
+let addPipeCallNodeFor pipe state =
+    state
+    |> mapGraph (addCallTo pipe)
+    |> mapLayout (addPosition (getCenterOfScreen ()))
+
 let init _ = initialState, Cmd.none
 
 let update msg state =
@@ -84,3 +96,4 @@ let update msg state =
     | Msg.MouseUpOnInput address ->
         state |> tryAddLinkFromSelectedOutputTo address, Cmd.none
     | Msg.MouseDragged newPos -> state |> moveClickedNodeTo newPos, Cmd.none
+    | Msg.AddPipe pipe -> state |> addPipeCallNodeFor pipe, Cmd.none

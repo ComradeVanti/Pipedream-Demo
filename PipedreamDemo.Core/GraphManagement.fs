@@ -52,3 +52,5 @@ let removeLinkInto address graph =
     match graph |> tryFindLinkWithEnd address with
     | Some link -> graph |> removeLink link
     | None -> graph
+
+let addCallTo pipe graph = graph |> addNode (PipeCall pipe)

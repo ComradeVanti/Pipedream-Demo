@@ -13,9 +13,12 @@ type NodeValue = float
 
 type InputValue = NodeValue
 
+type Pipe = { InputCount: int; OutputCount: int; Name: string }
+
 type Node =
     | Input
     | Output
+    | PipeCall of Pipe
 
 type Link = Endpoints of SlotAddress * SlotAddress
 
