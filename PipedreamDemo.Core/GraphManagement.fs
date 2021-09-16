@@ -22,13 +22,33 @@ let addLink link graph = graph |> mapLinks (appendItem link)
 
 let connect slot1 slot2 graph = graph |> addLink (Endpoints(slot1, slot2))
 
-let hasFreeInputAt address graph =
-    not
-    <| (graph.Links
-        |> List.exists (fun (Endpoints (_, output)) -> output = address))
+let hasInput address (Endpoints (input, _)) = input = address
+
+let hasOutput address (Endpoints (_, output)) = output = address
+
+let tryFindLinkWithStart address graph =
+    graph.Links |> List.tryFind (hasInput address)
+
+let tryFindLinkWithEnd address graph =
+    graph.Links |> List.tryFind (hasOutput address)
+
+let hasLinkFrom address graph =
+    graph |> tryFindLinkWithStart address |> Option.isSome
+
+let hasLinkInto address graph =
+    graph |> tryFindLinkWithEnd address |> Option.isSome
+
+let canAddLinkInto address = not << (hasLinkInto address)
 
 let tryConnect slot1 slot2 graph =
-    if graph |> hasFreeInputAt slot2 then
+    if graph |> canAddLinkInto slot2 then
         graph |> connect slot1 slot2
     else
         graph
+
+let removeLink link graph = graph |> mapLinks (List.except [ link ])
+
+let removeLinkFrom address graph =
+    match graph |> tryFindLinkWithStart address with
+    | Some link -> graph |> removeLink link
+    | None -> graph

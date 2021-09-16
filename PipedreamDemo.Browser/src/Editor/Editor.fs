@@ -41,7 +41,11 @@ let mapGraph mapper state = { state with Graph = state.Graph |> mapper }
 
 let clickNode nodeIndex state = { state with ClickedNodeIndex = Some nodeIndex }
 
-let clickOutput address state = { state with ClickedOutputSlot = Some address }
+let clickOutput address state =
+    if state.Graph |> hasLinkFrom address then
+        state |> mapGraph (removeLinkFrom address)
+    else
+        { state with ClickedOutputSlot = Some address }
 
 let unclick state =
     { state with
