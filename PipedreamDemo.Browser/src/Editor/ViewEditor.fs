@@ -85,29 +85,36 @@ let viewLinkToMouse outputAddress =
     $"{outputAddress |> asIdentifier} to mouse"
     |> viewLinkWithId
 
+let viewPipeElements graph values layout dispatch =
+
+    let nodeValueFor index = (values |> List.item index)
+
+    let viewNodeAtIndex index =
+        let node = graph |> nodeAt index
+        let value = nodeValueFor index
+        let position = layout |> positionAt index
+        viewNode node index position value dispatch
+
+    let nodeIds = List.init (graph |> nodeCount) id
+    let nodes = nodeIds |> List.map viewNodeAtIndex
+
+    Html.div [ prop.id "pipe-elements"; prop.children nodes ]
+
 let view (state: Editor.State) dispatch =
 
     let graph = state.Graph
     let layout = state.Layout
     let values = graph |> run state.Inputs
 
-    let viewNodeAtIndex value index =
-        let node = graph |> nodeAt index
-        let position = layout |> positionAt index
-        viewNode node index position value dispatch
-
-    let nodes =
-        List.init (state.Graph |> nodeCount) id
-        |> List.map (fun index -> viewNodeAtIndex values.[index] index)
-
     let mouseLink = state.ClickedOutputSlot |> Option.map viewLinkToMouse
+
+    let pipeElements = viewPipeElements graph values layout dispatch
 
     let links =
         graph.Links
         |> List.map viewLink
         |> appendIfPresent mouseLink
         |> Svg.svg
-
 
     let shouldRegisterDrags =
         state.ClickedNodeIndex |> Option.isSome
@@ -119,6 +126,6 @@ let view (state: Editor.State) dispatch =
             e.preventDefault ()
 
     Html.div [ prop.id "editor"
-               prop.children (nodes |> appendItem links)
+               prop.children [ pipeElements; links ]
                prop.onMouseUp (fun _ -> dispatch Editor.Msg.MouseUp)
                prop.onMouseMove onMouseMoved ]
