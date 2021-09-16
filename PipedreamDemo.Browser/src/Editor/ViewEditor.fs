@@ -100,6 +100,23 @@ let viewPipeElements graph values layout dispatch =
 
     Html.div [ prop.id "pipe-elements"; prop.children nodes ]
 
+let viewButtonBar dispatch =
+
+    let viewButton (name: string) =
+        Html.button [ prop.className "pipe-button"; prop.text name ]
+
+    let plusButton = viewButton "Plus"
+    let minusButton = viewButton "Minus"
+    let timesButton = viewButton "Times"
+    let overButton = viewButton "Over"
+
+    Html.div [ prop.id "button-bar"
+               prop.children [ Html.text "Add new pipes"
+                               plusButton
+                               minusButton
+                               timesButton
+                               overButton ] ]
+
 let view (state: Editor.State) dispatch =
 
     let graph = state.Graph
@@ -107,6 +124,8 @@ let view (state: Editor.State) dispatch =
     let values = graph |> run state.Inputs
 
     let mouseLink = state.ClickedOutputSlot |> Option.map viewLinkToMouse
+
+    let buttonBar = viewButtonBar dispatch
 
     let pipeElements = viewPipeElements graph values layout dispatch
 
@@ -126,6 +145,6 @@ let view (state: Editor.State) dispatch =
             e.preventDefault ()
 
     Html.div [ prop.id "editor"
-               prop.children [ pipeElements; links ]
+               prop.children [ buttonBar; pipeElements; links ]
                prop.onMouseUp (fun _ -> dispatch Editor.Msg.MouseUp)
                prop.onMouseMove onMouseMoved ]
