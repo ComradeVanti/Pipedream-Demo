@@ -8,7 +8,14 @@ open PipedreamDemo.GraphManagement
 open PipedreamDemo.LayoutManagement
 open PipedreamDemo.GraphExecution
 
-let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
+let viewNode
+    node
+    index
+    (XY (x, y))
+    (values: GraphValues)
+    (inputs: InputValue list)
+    dispatch
+    =
 
     let onBodyMouseDown (e: MouseEvent) =
         dispatch (Editor.Msg.NodeClicked index)
@@ -24,28 +31,39 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
 
     let viewInputContent () =
         Html.input [ prop.classes [ "node-content"; "input" ]
-                     prop.value value
+                     prop.value (inputs |> List.item index)
                      prop.type' "number"
                      prop.onChange
                          (fun v -> dispatch (Editor.Msg.InputChanged(index, v)))
                      prop.onMouseDown (fun e -> e.stopPropagation ()) ]
 
     let viewOutputContent () =
-        Html.div [ prop.classes [ "node-content"; "output" ]
-                   prop.text (string value) ]
+        Html.div [ prop.classes [ "node-content"; "output" ] ]
 
-    let viewPipeCallContent pipe = Html.div []
+    let viewPipeCallContent () =
+        Html.div [ prop.classes [ "node-content"; "pipe-call" ] ]
 
     let viewInputSlot slotIndex =
+        let address = (index, slotIndex)
+
         Html.div [ prop.className "node-slot"
                    prop.id $"{index}-input-{slotIndex}"
-                   prop.onMouseUp (onInputMouseUp (index, slotIndex))
-                   prop.onClick (onInputClicked (index, slotIndex)) ]
+                   prop.onMouseUp (onInputMouseUp address)
+                   prop.onClick (onInputClicked address) ]
 
     let viewOutputSlot slotIndex =
+        let address = (index, slotIndex)
+
+        let value =
+            values
+            |> Map.tryFind address
+            |> Option.map string
+            |> Option.defaultValue "?"
+
         Html.div [ prop.className "node-slot"
                    prop.id $"{index}-output-{slotIndex}"
-                   prop.onMouseDown (onOutputMouseDown (index, slotIndex)) ]
+                   prop.text value
+                   prop.onMouseDown (onOutputMouseDown address) ]
 
     let inputCount node =
         match node with
@@ -75,7 +93,7 @@ let viewNode node index (XY (x, y)) (value: NodeValue) dispatch =
         match node with
         | Input -> viewInputContent ()
         | Output -> viewOutputContent ()
-        | PipeCall pipe -> viewPipeCallContent pipe
+        | PipeCall _ -> viewPipeCallContent ()
 
     let outputSlots = viewSlots (node |> outputCount) viewOutputSlot
 
@@ -101,7 +119,7 @@ let viewLinkToMouse outputAddress =
     $"{outputAddress |> asIdentifier} to mouse"
     |> viewLinkWithId
 
-let viewPipeElements graph values layout dispatch =
+let viewPipeElements graph values inputs layout dispatch =
 
     let calcRelativeMousePosition (e: MouseEvent) =
         let target = e.currentTarget :?> HTMLElement
@@ -117,13 +135,10 @@ let viewPipeElements graph values layout dispatch =
 
             e.preventDefault ()
 
-    let nodeValueFor index = (values |> List.item index)
-
     let viewNodeAtIndex index =
         let node = graph |> nodeAt index
-        let value = nodeValueFor index
         let position = layout |> positionAt index
-        viewNode node index position value dispatch
+        viewNode node index position values inputs dispatch
 
     let nodeIds = List.init (graph |> nodeCount) id
     let nodes = nodeIds |> List.map viewNodeAtIndex
@@ -161,7 +176,8 @@ let view (state: Editor.State) dispatch =
 
     let buttonBar = viewButtonBar dispatch
 
-    let pipeElements = viewPipeElements graph values layout dispatch
+    let pipeElements =
+        viewPipeElements graph values state.Inputs layout dispatch
 
     let links =
         graph.Links

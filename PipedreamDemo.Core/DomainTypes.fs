@@ -13,7 +13,15 @@ type NodeValue = float
 
 type InputValue = NodeValue
 
-type Pipe = { InputCount: int; OutputCount: int; Name: string }
+type PipeFunc = float list -> float list
+
+type Pipe =
+    {
+        InputCount: int
+        OutputCount: int
+        Name: string
+        Func: PipeFunc
+    }
 
 type Node =
     | Input
@@ -30,4 +38,4 @@ type NodePosition = Vector
 
 type GraphLayout = Positions of NodePosition list
 
-type GraphValues = NodeValue list
+type GraphValues = Map<SlotAddress, float>
