@@ -103,6 +103,20 @@ let viewLinkToMouse outputAddress =
 
 let viewPipeElements graph values layout dispatch =
 
+    let calcRelativeMousePosition (e: MouseEvent) =
+        let target = e.currentTarget :?> HTMLElement
+        let rect = target.getBoundingClientRect ()
+        XY(e.clientX - rect.left, e.clientY - rect.top)
+
+    let onMouseMoved (e: MouseEvent) =
+        if e.buttons = 1. then
+            e
+            |> calcRelativeMousePosition
+            |> Editor.Msg.MouseDragged
+            |> dispatch
+
+            e.preventDefault ()
+
     let nodeValueFor index = (values |> List.item index)
 
     let viewNodeAtIndex index =
@@ -114,7 +128,9 @@ let viewPipeElements graph values layout dispatch =
     let nodeIds = List.init (graph |> nodeCount) id
     let nodes = nodeIds |> List.map viewNodeAtIndex
 
-    Html.div [ prop.id "pipe-elements"; prop.children nodes ]
+    Html.div [ prop.id "pipe-elements"
+               prop.children nodes
+               prop.onMouseMove onMouseMoved ]
 
 let viewButtonBar dispatch =
 
@@ -153,16 +169,6 @@ let view (state: Editor.State) dispatch =
         |> appendIfPresent mouseLink
         |> Svg.svg
 
-    let shouldRegisterDrags =
-        state.ClickedNodeIndex |> Option.isSome
-        || state.ClickedOutputSlot |> Option.isSome
-
-    let onMouseMoved (e: MouseEvent) =
-        if shouldRegisterDrags then
-            dispatch (Editor.Msg.MouseDragged(XY(e.clientX, e.clientY)))
-            e.preventDefault ()
-
     Html.div [ prop.id "editor"
                prop.children [ buttonBar; pipeElements; links ]
-               prop.onMouseUp (fun _ -> dispatch Editor.Msg.MouseUp)
-               prop.onMouseMove onMouseMoved ]
+               prop.onMouseUp (fun _ -> dispatch Editor.Msg.MouseUp) ]
