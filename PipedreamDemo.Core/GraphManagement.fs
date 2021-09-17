@@ -40,12 +40,6 @@ let hasLinkInto address graph =
 
 let canAddLinkInto address = not << (hasLinkInto address)
 
-let tryConnect slot1 slot2 graph =
-    if graph |> canAddLinkInto slot2 then
-        graph |> connect slot1 slot2
-    else
-        graph
-
 let removeLink link graph = graph |> mapLinks (List.except [ link ])
 
 let removeLinkInto address graph =
@@ -54,3 +48,40 @@ let removeLinkInto address graph =
     | None -> graph
 
 let addCallTo pipe graph = graph |> addNode (PipeCall pipe)
+
+let endsIn nodeIndex (Endpoints (_, (outputIndex, _))) = nodeIndex = outputIndex
+
+let findLinksInto nodeIndex graph = graph.Links |> List.where (endsIn nodeIndex)
+
+let getInputNodeIndex (Endpoints ((inputIndex, _), _)) = inputIndex
+
+let findDirectDependenciesIn graph nodeIndex =
+    graph
+    |> findLinksInto nodeIndex
+    |> List.map getInputNodeIndex
+    |> List.distinct
+
+let rec findDependenciesIn graph nodeIndex =
+    let direct = nodeIndex |> findDirectDependenciesIn graph
+    let indirect = direct |> List.collect (findDependenciesIn graph)
+    List.append direct indirect |> List.distinct
+
+let isSelfDependentIn graph nodeIndex =
+    nodeIndex
+    |> findDependenciesIn graph
+    |> List.contains nodeIndex
+
+let isCyclic graph =
+    graph.Nodes
+    |> List.indexed
+    |> List.map fst
+    |> List.exists (isSelfDependentIn graph)
+
+let tryConnect slot1 slot2 graph =
+    let connected =
+        if graph |> canAddLinkInto slot2 then
+            graph |> connect slot1 slot2
+        else
+            graph
+
+    if connected |> isCyclic then graph else connected
